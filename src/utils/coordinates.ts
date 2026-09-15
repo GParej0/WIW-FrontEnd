@@ -13,6 +13,11 @@ export default function calculateImageCoordinates(e: React.MouseEvent<HTMLImageE
     const x = screenX * scaleX;
     const y = screenY * scaleY;
 
-    return { x: Math.floor(x), y: Math.floor(y) };
+    return {
+        x: Math.floor(x),
+        y: Math.floor(y),
+        screenX: Math.floor(screenX),
+        screenY: Math.floor(screenY)
+    };
 
 }
