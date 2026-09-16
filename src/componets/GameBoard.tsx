@@ -22,15 +22,20 @@ export default function GameBoard() {
             realX: coords.x,
             realY: coords.y,
         })
+
     }
 
     function closeMenu() {
         setTarget(null)
     }
+
+    function selectCharacter(character: string) {
+        console.log(character)
+    }
     return (
         <>
             <img ref={imageRef} src={WiWBoard} alt="Where is Waldo?" onClick={handleClick} />
-            {target && <DropMenu target={target} onClose={closeMenu} />}
+            {target && <DropMenu target={target} onClose={closeMenu} onSelect={selectCharacter} />}
         </>
     )
 }

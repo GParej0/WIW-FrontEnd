@@ -5,8 +5,9 @@ interface ClickTarget {
     realY: number
 }
 interface DropMenuProps {
-    target: ClickTarget;
-    onClose: () => void
+    target: ClickTarget,
+    onClose: () => void,
+    onSelect: (characterName: string) => void
 }
 
 export type { ClickTarget, DropMenuProps }
