@@ -1,16 +1,28 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRef } from "react";
 import WiWBoard from "../assets/Where is Waldo .jpg";
 import calculateImageCoordinates from "../utils/coordinates";
 import type { ClickTarget } from "../types";
 import DropMenu from "./DropdownMenu";
 import { CHARACTER_DATA } from "../characterData/characters";
+import LeaderBoard from "./LeaderBoard";
 
 export default function GameBoard() {
 
     const imageRef = useRef<HTMLImageElement>(null)
     const [target, setTarget] = useState<ClickTarget | null>(null);
     const [foundCharacterIds, setFoundCharacterIds] = useState<string[]>([])
+    const [isPlaying, setIsPlaying] = useState<boolean>(false);
+    const [startTime, setStartTime] = useState<number>();
+    const [endTime, setEndTime] = useState<number>();
+    const [timeScore, setTimeScore] = useState<number | null>(null)
+
+    useEffect(() => {
+        if (isPlaying) {
+            endGame()
+        }
+    }, [foundCharacterIds, isPlaying])
+
     function handleClick(e: React.MouseEvent<HTMLImageElement>) {
         const image = imageRef.current
 
@@ -46,6 +58,36 @@ export default function GameBoard() {
             }
         }
         setTarget(null)
+    }
+
+    function endGame() {
+
+        if (foundCharacterIds.length === CHARACTER_DATA.length) {
+            const finishedAt = Date.now();
+            setEndTime(finishedAt);
+
+            if (startTime === undefined) return
+
+            setTimeScore(finishedAt - startTime);
+        }
+    }
+
+    function onRestart() {
+        setIsPlaying(false);
+        setFoundCharacterIds([]);
+        setTimeScore(null);
+        setTarget(null)
+    }
+
+    if (!isPlaying) {
+        return (
+            <button onClick={() => { setIsPlaying(true); setStartTime(Date.now()) }}> Play</button >
+        )
+    }
+    if (timeScore !== null) {
+        return (
+            <LeaderBoard timeScore={timeScore} onRestart={onRestart} />
+        )
     }
     return (
         <>

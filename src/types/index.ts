@@ -11,4 +11,9 @@ interface DropMenuProps {
     foundIds: string[]
 }
 
-export type { ClickTarget, DropMenuProps }
+interface LeaderBoardProps {
+    timeScore: number,
+    onRestart: () => void
+}
+
+export type { ClickTarget, DropMenuProps, LeaderBoardProps }
