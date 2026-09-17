@@ -2,18 +2,17 @@ import { useEffect, useState } from "react";
 import { useRef } from "react";
 import WiWBoard from "../assets/Where is Waldo .jpg";
 import calculateImageCoordinates from "../utils/coordinates";
-import type { ClickTarget } from "../types";
+import type { ClickTarget, GameBoardProps } from "../types";
 import DropMenu from "./DropdownMenu";
 import { CHARACTER_DATA } from "../characterData/characters";
+import GameInfo from "./GameInfo"
 import LeaderBoard from "./LeaderBoard";
 
-export default function GameBoard() {
+export default function GameBoard({ isPlaying, startTime, setIsPlaying, setStartTime }: GameBoardProps) {
 
     const imageRef = useRef<HTMLImageElement>(null)
     const [target, setTarget] = useState<ClickTarget | null>(null);
     const [foundCharacterIds, setFoundCharacterIds] = useState<string[]>([])
-    const [isPlaying, setIsPlaying] = useState<boolean>(false);
-    const [startTime, setStartTime] = useState<number>();
     const [endTime, setEndTime] = useState<number>();
     const [timeScore, setTimeScore] = useState<number | null>(null)
 
@@ -66,33 +65,41 @@ export default function GameBoard() {
             const finishedAt = Date.now();
             setEndTime(finishedAt);
 
-            if (startTime === undefined) return
+            if (startTime == null) return
 
             setTimeScore(finishedAt - startTime);
+            setIsPlaying(false)
         }
     }
 
     function onRestart() {
-        setIsPlaying(false);
+        setIsPlaying(false)
         setFoundCharacterIds([]);
         setTimeScore(null);
         setTarget(null)
-    }
-
-    if (!isPlaying) {
-        return (
-            <button onClick={() => { setIsPlaying(true); setStartTime(Date.now()) }}> Play</button >
-        )
     }
     if (timeScore !== null) {
         return (
             <LeaderBoard timeScore={timeScore} onRestart={onRestart} />
         )
     }
+
+    if (!isPlaying) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-amber-50/50">
+                <button onClick={() => { setIsPlaying(true); setStartTime(Date.now()) }} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-xl px-8 py-4 rounded-2xl shadow-lg hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer border-2 border-white/20"
+                >🎮 Play Game</button>
+            </div>
+        )
+    }
+
     return (
         <>
-            <img ref={imageRef} src={WiWBoard} alt="Where is Waldo?" onClick={handleClick} />
-            {target && <DropMenu target={target} onClose={closeMenu} onSelect={selectCharacter} foundIds={foundCharacterIds} />}
+            <GameInfo foundIds={foundCharacterIds} />
+            <div className="relative min-h-screen bg-amber-50 flex flex-col items-center p-4">
+                <img ref={imageRef} src={WiWBoard} alt="Where is Waldo?" onClick={handleClick} className="cursor-crosshair rounded-lg shadow-2xl max-w-full" />
+                {target && <DropMenu target={target} onClose={closeMenu} onSelect={selectCharacter} foundIds={foundCharacterIds} />}
+            </div>
         </>
     )
 }

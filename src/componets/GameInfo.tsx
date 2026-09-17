@@ -1,28 +1,22 @@
-import Waldo from "../assets/waldo.jpg"
-import Oldaw from "../assets/odlaw.jpg"
-import Wenda from "../assets/wenda.jpg"
-import Wizard from "../assets/wizard.jpg"
-
-export default function GameInfo() {
+import { CHARACTER_DATA } from "../characterData/characters"
+import type { GameInfoProp } from "../types";
+export default function GameInfo({ foundIds }: GameInfoProp) {
     return (
-        <>
-            <h3>Who is hidding?</h3>
-            <div className="info-details">
-                <img src={Waldo} alt="Waldo" className="infoPhoto" />
-                <h5>Waldo</h5>
-            </div>
-            <div className="info-details">
-                <img src={Oldaw} alt="Oldaw" className="infoPhoto" />
-                <h5>Oldaw</h5>
-            </div>
-            <div className="info-details">
-                <img src={Wenda} alt="Wenda" className="infoPhoto" />
-                <h5>Wenda</h5>
-            </div>
-            <div className="info-details">
-                <img src={Wizard} alt="Wizard" className="infoPhoto" />
-                <h5>Wizard</h5>
-            </div>
-        </>
+        <div className="flex gap-4 items-center justify-center p-4 bg-white/80 rounded-xl shadow-md">
+            {CHARACTER_DATA.map((char) => {
+                const isFound = foundIds.includes(char.id);
+                return (
+                    <div key={char.id} className="flex flex-col items-center gap-1">
+                        <img
+                            src={char.image}
+                            alt={char.name}
+                            className={`w-12 h-12 rounded-full border-2 border-black object-cover transition-all ${isFound ? "blur-sm opacity-50 scale-95" : "opacity-100"
+                                }`}
+                        />
+                        <span className="text-xs font-semibold">{char.name}</span>
+                    </div>
+                );
+            })}
+        </div>
     )
 }

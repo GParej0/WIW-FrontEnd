@@ -1,14 +1,15 @@
 import Navbar from "./componets/Navbar"
-import GameInfo from "./componets/GameInfo"
 import GameBoard from "./componets/GameBoard"
-function App() {
+import { useState } from "react";
 
+function App() {
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [startTime, setStartTime] = useState<number | null>(null);
 
   return (
     <>
-      <Navbar />
-      <GameInfo />
-      <GameBoard />
+      <Navbar isPlaying={isPlaying} startTime={startTime} />
+      <GameBoard isPlaying={isPlaying} startTime={startTime} setIsPlaying={setIsPlaying} setStartTime={setStartTime} />
     </>
   )
 }

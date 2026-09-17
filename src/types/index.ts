@@ -16,4 +16,19 @@ interface LeaderBoardProps {
     onRestart: () => void
 }
 
-export type { ClickTarget, DropMenuProps, LeaderBoardProps }
+interface GameInfoProp {
+    foundIds: string[];
+}
+
+interface NavProps {
+    isPlaying: boolean,
+    startTime: number | null
+}
+
+interface GameBoardProps {
+    isPlaying: boolean,
+    startTime: number | null,
+    setIsPlaying: React.Dispatch<React.SetStateAction<boolean>>,
+    setStartTime: React.Dispatch<React.SetStateAction<number | null>>
+}
+export type { ClickTarget, DropMenuProps, LeaderBoardProps, GameInfoProp, NavProps, GameBoardProps }
