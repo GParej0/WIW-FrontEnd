@@ -16,13 +16,11 @@ export default function LeaderBoard({ sessionId, onRestart, endTime }: LeaderBoa
         const formData = new FormData(e.currentTarget as HTMLFormElement);
         const name = formData.get("name") as string;
         setName(name)
-        console.log(sessionId, name, endTime)
         try {
             await finishGame(sessionId, name, endTime)
             const leaderboardData = await getLeaderBoard();
             setScores(leaderboardData);
         } catch (error) {
-            console.error("Error al finalizar el juego:", error);
             alert("Something went wrong.");
         }
     }
