@@ -1,26 +1,35 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRef } from "react";
 import WiWBoard from "../assets/Where is Waldo .jpg";
 import calculateImageCoordinates from "../utils/coordinates";
 import type { ClickTarget, GameBoardProps } from "../types";
 import DropMenu from "./DropdownMenu";
-import { CHARACTER_DATA } from "../characterData/characters";
 import GameInfo from "./GameInfo"
 import LeaderBoard from "./LeaderBoard";
+import { startGame, validateCharacter } from "../services/api";
 
-export default function GameBoard({ isPlaying, startTime, setIsPlaying, setStartTime }: GameBoardProps) {
+export default function GameBoard({ isPlaying, setIsPlaying, setStartTime }: GameBoardProps) {
 
     const imageRef = useRef<HTMLImageElement>(null)
     const [target, setTarget] = useState<ClickTarget | null>(null);
     const [foundCharacterIds, setFoundCharacterIds] = useState<string[]>([])
-    const [endTime, setEndTime] = useState<number>();
-    const [timeScore, setTimeScore] = useState<number | null>(null)
+    const [sessionId, setSessionId] = useState<number | null>(null)
+    const [characters, setCharacters] = useState<string[]>([])
+    const [endTime, setEndTime] = useState<number | null>(null)
 
-    useEffect(() => {
-        if (isPlaying) {
-            endGame()
+
+    async function handleStartGame() {
+        try {
+            const data = await startGame();
+            setSessionId(data.sessionID);
+            setStartTime(Date.now());
+            setIsPlaying(true);
+            setCharacters(data.characters)
+        } catch (error) {
+            alert("Error al iniciar la partida");
         }
-    }, [foundCharacterIds, isPlaying])
+    }
+
 
     function handleClick(e: React.MouseEvent<HTMLImageElement>) {
         const image = imageRef.current
@@ -41,53 +50,48 @@ export default function GameBoard({ isPlaying, startTime, setIsPlaying, setStart
         setTarget(null)
     }
 
-    function selectCharacter(character: string) {
-        const foundCharacter = CHARACTER_DATA.find((char) => char.id.toLowerCase() === character.toLowerCase());
+    async function selectCharacter(character: string) {
+        if (!target) return;
 
-        if (foundCharacter && target) {
-            const diffX = Math.abs(target.realX - foundCharacter.x);
-            const diffY = Math.abs(target.realY - foundCharacter.y);
+        try {
+            const response = await validateCharacter(character, target.realX, target.realY);
 
-            if (diffX <= foundCharacter.tolerance && diffY <= foundCharacter.tolerance) {
-                setFoundCharacterIds(prev => [...prev, foundCharacter.id])
-                alert(`Congarts! You founded ${character}!`)
+            if (response.isCorrect) {
+                setFoundCharacterIds(prev => [...prev, character]);
+                if (characters.length > 0 && foundCharacterIds.length + 1 === characters.length) {
+                    setIsPlaying(false);
+                    setEndTime(Date.now())
+                }
+                alert(`Congrats! You found ${character}!`);
             } else {
-
-                alert(`Sory you missed =(`)
+                alert(`Sorry, you missed =(`);
             }
-        }
-        setTarget(null)
-    }
-
-    function endGame() {
-
-        if (foundCharacterIds.length === CHARACTER_DATA.length) {
-            const finishedAt = Date.now();
-            setEndTime(finishedAt);
-
-            if (startTime == null) return
-
-            setTimeScore(finishedAt - startTime);
-            setIsPlaying(false)
+        } catch (error) {
+            alert("Error al conectar con el servidor.");
+        } finally {
+            setTarget(null);
         }
     }
 
     function onRestart() {
-        setIsPlaying(false)
         setFoundCharacterIds([]);
-        setTimeScore(null);
         setTarget(null)
+        setStartTime(null)
     }
-    if (timeScore !== null) {
+
+
+    if (characters.length > 0 && foundCharacterIds.length === characters.length) {
+        if (sessionId === null) return null;
+        if (endTime === null) return null
         return (
-            <LeaderBoard timeScore={timeScore} onRestart={onRestart} />
+            <LeaderBoard sessionId={sessionId} endTime={endTime} onRestart={onRestart} />
         )
     }
 
     if (!isPlaying) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-amber-50/50">
-                <button onClick={() => { setIsPlaying(true); setStartTime(Date.now()) }} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-xl px-8 py-4 rounded-2xl shadow-lg hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer border-2 border-white/20"
+                <button onClick={handleStartGame} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-xl px-8 py-4 rounded-2xl shadow-lg hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer border-2 border-white/20"
                 >🎮 Play Game</button>
             </div>
         )

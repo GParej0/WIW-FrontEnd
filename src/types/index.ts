@@ -12,7 +12,8 @@ interface DropMenuProps {
 }
 
 interface LeaderBoardProps {
-    timeScore: number,
+    sessionId: number,
+    endTime: number,
     onRestart: () => void
 }
 
@@ -27,7 +28,6 @@ interface NavProps {
 
 interface GameBoardProps {
     isPlaying: boolean,
-    startTime: number | null,
     setIsPlaying: React.Dispatch<React.SetStateAction<boolean>>,
     setStartTime: React.Dispatch<React.SetStateAction<number | null>>
 }
