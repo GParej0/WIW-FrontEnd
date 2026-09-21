@@ -6,7 +6,13 @@ export default function Navbar({ isPlaying, startTime }: NavProps) {
     const [elapsedTime, setElapsedTime] = useState(0)
 
     useEffect(() => {
-        if (startTime === null || !isPlaying) return
+
+        if (startTime === null || !isPlaying) {
+            if (startTime === null) {
+                setElapsedTime(0);
+            }
+            return
+        }
 
         const interval = setInterval(() => {
 

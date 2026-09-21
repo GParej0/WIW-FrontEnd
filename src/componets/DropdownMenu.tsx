@@ -8,7 +8,7 @@ export default function DropMenu({ target, onClose, onSelect, foundIds }: DropMe
     const isNearTop = target.displayY < 150;
     return (
         <>
-            <div className={`drop-menu absolute z-50 bg-white shadow-xl rounded-xl p-3 border border-gray-200 min-w-[160px] translate-x-85 ${isNearTop ? "translate-y-2" : "-translate-y-full"}`} style={{
+            <div className={`drop-menu absolute z-50 bg-white shadow-xl rounded-xl p-3 border border-gray-200 min-w-[160px] translate-x-35 ${isNearTop ? "translate-y-2" : "-translate-y-full"}`} style={{
                 left: `${target.displayX}px`,
                 top: `${target.displayY}px`,
             }}>

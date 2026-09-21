@@ -9,7 +9,7 @@ function App() {
   return (
     <>
       <Navbar isPlaying={isPlaying} startTime={startTime} />
-      <GameBoard isPlaying={isPlaying} startTime={startTime} setIsPlaying={setIsPlaying} setStartTime={setStartTime} />
+      <GameBoard isPlaying={isPlaying} setIsPlaying={setIsPlaying} setStartTime={setStartTime} />
     </>
   )
 }

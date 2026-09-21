@@ -1,24 +1,32 @@
 import type React from "react";
 import type { LeaderBoardProps } from "../types";
 import { useState } from "react";
+import { finishGame, getLeaderBoard } from "../services/api";
+import formatTime from "../utils/formatTime";
 
-export default function LeaderBoard({ timeScore, onRestart }: LeaderBoardProps) {
+export default function LeaderBoard({ sessionId, onRestart, endTime }: LeaderBoardProps) {
     const [name, setName] = useState<string | null>(null);
-    const [scores, setScores] = useState<{ name: string; score: number }[]>([
-        { name: "Player 1", score: 45 },
-        { name: "Player 2", score: 62 },
+    const [scores, setScores] = useState<{ name: string; timeMs: number }[]>([
+        { name: "Player 1", timeMs: 45 },
+        { name: "Player 2", timeMs: 62 },
     ])
 
-    function handleSubmit(e: React.SubmitEvent) {
+    async function handleSubmit(e: React.SubmitEvent) {
         e.preventDefault();
         const formData = new FormData(e.currentTarget as HTMLFormElement);
         const name = formData.get("name") as string;
         setName(name)
-        setScores(prev => {
-            const newScores = [...prev, { name: name, score: timeScore / 1000 }];
-            return newScores.sort((a, b) => a.score - b.score)
-        })
+        console.log(sessionId, name, endTime)
+        try {
+            await finishGame(sessionId, name, endTime)
+            const leaderboardData = await getLeaderBoard();
+            setScores(leaderboardData);
+        } catch (error) {
+            console.error("Error al finalizar el juego:", error);
+            alert("Something went wrong.");
+        }
     }
+
     if (name === null) {
         return (
             <>
@@ -74,8 +82,8 @@ export default function LeaderBoard({ timeScore, onRestart }: LeaderBoardProps) 
                             >
                                 <div className="flex items-center gap-3">
                                     <span className={`w-6 text-center font-bold text-sm ${index === 0 ? "text-amber-500 text-base" :
-                                            index === 1 ? "text-slate-400 text-base" :
-                                                index === 2 ? "text-amber-700 text-base" : "text-gray-400"
+                                        index === 1 ? "text-slate-400 text-base" :
+                                            index === 2 ? "text-amber-700 text-base" : "text-gray-400"
                                         }`}>
                                         {index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `${index + 1}.`}
                                     </span>
@@ -84,7 +92,7 @@ export default function LeaderBoard({ timeScore, onRestart }: LeaderBoardProps) 
                                     </span>
                                 </div>
                                 <span className="font-mono text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md">
-                                    {score.score.toFixed(2)}s
+                                    {formatTime(score.timeMs)}s
                                 </span>
                             </li>
                         ))}
